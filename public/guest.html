@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>游客下载</title>
+<ul id="list"></ul>
+<script>
+async function load() {
+  await fetch('/api/guest/info')
+  const list = await fetch('/api/guest/files').then(r=>r.json())
+  const ul = document.getElementById('list')
+  list.forEach(f => {
+    const li = document.createElement('li')
+    li.innerHTML = `${f.filename} <a href="/api/file/${f.file_id}">下载</a>`
+    ul.appendChild(li)
+  })
+}
+load()
+</script>
+
