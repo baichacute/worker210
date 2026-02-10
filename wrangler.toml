@@ -18,3 +18,6 @@ database_id = "cb30476a-696d-4cb9-ad76-19d71f9f5d0d"
 [[kv_namespaces]]
 binding = "KV"
 id = "d9e8c8ab14c9429b9db73ce5f3f5c65c"
+
+[assets]
+directory = "./public"
