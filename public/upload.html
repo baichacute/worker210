@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>上传</title>
+<div id="storage"></div>
+<input type="file" id="file">
+<select id="expire">
+  <option value="1h">1小时</option>
+  <option value="1d">1天</option>
+  <option value="3d">3天</option>
+  <option value="7d">7天</option>
+  <option value="30d">30天</option>
+  <option value="never">永久</option>
+</select>
+<button onclick="upload()">上传</button>
+<script>
+const chunkSize = 25 * 1024 * 1024
+async function upload() {
+  const file = document.getElementById('file').files[0]
+  const expire = document.getElementById('expire').value
+  const totalChunks = Math.ceil(file.size / chunkSize)
+  const r = await fetch('/api/file/create', {
+    method: 'POST',
+    body: JSON.stringify({ filename: file.name, expire, encrypted: false })
+  })
+  const { file_id } = await r.json()
+  for (let i=0; i<totalChunks; i++) {
+    const start = i * chunkSize
+    const end = Math.min(start + chunkSize, file.size)
+    const blob = file.slice(start, end)
+    const fd = new FormData()
+    fd.append('chunk', blob)
+    await fetch(`/api/file/chunk?file_id=${file_id}&index=${i}`, {
+      method: 'POST',
+      body: fd
+    })
+  }
+  await fetch('/api/file/finish', {
+    method: 'POST',
+    body: JSON.stringify({
+      file_id,
+      total_size: file.size,
+      total_chunks: totalChunks,
+      mime: file.type
+    })
+  })
+  alert('上传完成')
+  location.href = '/dashboard'
+}
+async function loadStorage() {
+  const s = await fetch('/api/storage/info').then(r=>r.json())
+  document.getElementById('storage').innerText =
+    `剩余 ${s.remaining_mb}MB / ${s.total_mb}MB`
+}
+loadStorage()
+</script>
