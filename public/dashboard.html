@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>控制台</title>
+<div id="storage"></div>
+<a href="/upload">上传</a>
+<a href="/guest">游客区</a>
+<a href="/api/auth/logout">退出</a>
+<ul id="list"></ul>
+<script>
+async function load() {
+  const s = await fetch('/api/storage/info').then(r=>r.json())
+  document.getElementById('storage').innerText =
+    `总容量 ${s.total_mb}MB · 已用 ${s.used_mb}MB · 剩余 ${s.remaining_mb}MB`
+  const list = await fetch('/api/file/my/list').then(r=>r.json())
+  const ul = document.getElementById('list')
+  ul.innerHTML = ''
+  list.forEach(f => {
+    const li = document.createElement('li')
+    li.innerHTML = `
+      ${f.filename}
+      <a href="/api/file/${f.file_id}">下载</a>
+      <button onclick="pub('${f.file_id}')">公开</button>
+      <button onclick="pri('${f.file_id}')">私有</button>
+    `
+    ul.appendChild(li)
+  })
+}
+async function pub(id) {
+  await fetch(`/api/file/${id}/public`, { method: 'POST' })
+  load()
+}
+async function pri(id) {
+  await fetch(`/api/file/${id}/private`, { method: 'POST' })
+  load()
+}
+load()
+</script>
