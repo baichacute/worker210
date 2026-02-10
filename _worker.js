@@ -1,11 +1,11 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/cloudflare-pages'
-import { authMiddleware, apiAuth } from './auth'
-import { apiFile } from './files'
-import { apiStorage } from './storage'
-import { apiLogs } from './logs'
-import { apiGuest } from './guest'
-import { initDB } from './db'
+import { authMiddleware, xapiAuth } from './src/auth'
+import { apiFile } from './src/files'
+import { apiStorage } from './src/storage'
+import { apiLogs } from './src/logs'
+import { apiGuest } from './src/guest'
+import { initDB } from './src/db'
 
 const app = new Hono()
 
